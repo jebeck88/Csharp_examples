@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="LinkedLists/LinkedLists.csproj" />
+  <Project Path="UnitTests/UnitTests.csproj" Id="05072785-9262-4bf4-b583-464010200042">
+    <BuildDependency Project="LinkedLists/LinkedLists.csproj" />
+  </Project>
 </Solution>

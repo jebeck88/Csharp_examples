@@ -9,7 +9,7 @@ namespace LinkedLists
     /// <summary>
     /// Public interface for a list
     /// </summary>
-    public interface List
+    public interface IList
     {
         /// <summary>
         /// Adds an item to the front of the list

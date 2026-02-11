@@ -8,3 +8,5 @@
 /LinkedLists/.vs
 /LinkedLists/LinkedLists/bin/Debug/net8.0
 /LinkedLists/LinkedLists/obj
+/LinkedLists/UnitTests/bin/Debug/net8.0
+/LinkedLists/UnitTests/obj

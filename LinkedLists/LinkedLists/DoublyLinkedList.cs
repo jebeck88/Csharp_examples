@@ -11,7 +11,7 @@ using System.Xml.XPath;
 
 namespace LinkedLists
 {
-    public class DoublyLinkedList : List
+    public class DoublyLinkedList : IList
     {
         public bool IsEmpty => (mHead is null);
 

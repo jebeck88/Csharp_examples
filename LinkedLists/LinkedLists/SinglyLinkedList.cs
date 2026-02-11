@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LinkedLists
 {
-    public class SinglyLinkedList : List
+    public class SinglyLinkedList : IList
     {
         public bool IsEmpty => mHead == null;
 

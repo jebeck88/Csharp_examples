@@ -14,7 +14,7 @@ namespace LinkedLists
             TestList(list);
         }
 
-        private static void TestList(List list)
+        private static void TestList(IList list)
         {
             // Print empty list
             Console.WriteLine($"Size = {list.Size} isEmpty = {list.IsEmpty} list={list}");
