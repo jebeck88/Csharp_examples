@@ -27,9 +27,9 @@ namespace LinkedLists
         /// Inserts an item to the list at a given index
         /// </summary>
         /// <param name="index">the index</param>
-        /// <param name="Item">the item to add</param>
+        /// <param name="item">the item to add</param>
         /// <throws>Exception if the index is out of range</throws>
-        void Insert(int index, string Item);
+        void Insert(int index, string item);
 
         /// <summary>
         /// Removes the first item from the list, or does nothing if the list is empty

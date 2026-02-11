@@ -86,6 +86,12 @@ namespace LinkedLists
 
         public string Get(int index)
         {
+            // Check the range
+            if (index < 0 || index >= Size)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
             // Advance to index while node isn't null
             int i = 0;
             Node? node = mHead;

@@ -9,11 +9,12 @@ namespace LinkedLists
         {
             Console.WriteLine("Hello World!");
 
-            var list = new SinglyLinkedList();
+            //var list = new SinglyLinkedList();
+            var list = new DoublyLinkedList();
             TestList(list);
         }
 
-        private static void TestList(SinglyLinkedList list)
+        private static void TestList(List list)
         {
             // Print empty list
             Console.WriteLine($"Size = {list.Size} isEmpty = {list.IsEmpty} list={list}");
