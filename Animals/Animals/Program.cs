@@ -37,7 +37,7 @@ namespace Animals
             shelter.Return(ginger);
 
             // Adopt ginger from the shelter
-            ginger = shelter.adopt("Ginger");
+            ginger = shelter.Adopt("Ginger");
             Console.WriteLine($"{ginger.SayHello()}");
 
             // Print the names of the animals in our shelter

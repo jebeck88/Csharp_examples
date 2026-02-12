@@ -120,6 +120,26 @@ namespace Animals
         }
 
         /// <summary>
+        /// Returns true if an animal with this name lives at the shelter
+        /// and is available to be borrwed or adopted
+        /// </summary>
+        /// <param name="name">the animals name</param>
+        /// <returns>true if available</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public bool IsAvailable(string name)
+        {
+            lock (mLock)
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new ArgumentException("Name is null or empty.");
+                }
+
+                return (mAnimals.ContainsKey(name) && !mBorrowedAnimals.Contains(name));
+            }
+        }
+
+        /// <summary>
         /// Return a borrowe animal to the shelter
         /// </summary>
         /// <param name="animal">the animal being returned</param>
@@ -157,7 +177,7 @@ namespace Animals
         /// <param name="name">name of animal to adopt</param>
         /// <returns>the animal</returns>
         /// <exception cref="ArgumentException">if the animal doesn't live here or can't be adopted</exception>
-        public IAnimal adopt(string name)
+        public IAnimal Adopt(string name)
         {
             lock (mLock)
             {
