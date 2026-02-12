@@ -18,8 +18,8 @@ namespace Animals
     /// 
     /// Implemented as a singleton.
     /// 
-    /// Our animal shelter is a little weird.  We require all animals in our shelter have a unique name. 
-    /// Only one "Daisy" or "Duke" please.  
+    /// Our animal shelter is a little weird.  We require all animals in our shelter to have a unique name. 
+    /// Only one "Molly" or "Duke" please.  
     /// </summary>
     public class AnimalShelter
     {
