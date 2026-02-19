@@ -22,27 +22,38 @@ namespace CodingChallenge.ViewModels
         private string _filePath = string.Empty;
         private string _statusMessage = "Select a DICOM file to begin";
         private PlanData? _currentPlan;
+        private StructureData? _currentStructure;
         private int _passCount;
         private int _failCount;
         private int _warningCount;
         private bool _hasResults;
 
-        private readonly List<IPlanCheck> _checks;
+        private readonly List<IPlanCheck> _planChecks;
+
+        // I'm cheating because i'm short on time! 
+        // Really want a separate type for structure types.  Maybe a common parent type
+        // for structure and plan checks
+        private readonly List<IPlanCheck> _structureChecks;
 
         public MainViewModel()
         {
             CheckResults = new ObservableCollection<CheckResultViewModel>();
             BrowseCommand = new RelayCommand(ExecuteBrowse);
-            RunChecksCommand = new RelayCommand(ExecuteRunChecks, () => _currentPlan?.IsLoaded == true);
+            RunChecksCommand = new RelayCommand(ExecuteRunPlanChecks, () => _currentPlan?.IsLoaded == true);
 
             // Register all plan checks
-            _checks = new List<IPlanCheck>
+            _planChecks = new List<IPlanCheck>
             {
                 new ModalityCheck(),
                 new PatientIdCheck(),
                 new PlanIdCheck(),
                 new BeamCountCheck(), 
                 new BeamTypeCheck(),
+            };
+
+            _structureChecks = new()
+            {
+                new SimpleStructureCheck(),
             };
         }
 
@@ -109,21 +120,58 @@ namespace CodingChallenge.ViewModels
             HasResults = false;
             PassCount = FailCount = WarningCount = 0;
 
+            HashSet<String> knownModalities = new()
+            { 
+                "RTSTRUCT", 
+                "RTPLAN" 
+            };
+
             try
             {
                 StatusMessage = "Loading DICOM file...";
 
                 var dcm = DICOMObject.Read(path);
-                _currentPlan = ExtractPlanData(dcm, path);
 
-                if (_currentPlan.IsLoaded)
+                // Get the modality tag
+                var modality = dcm.FindFirst(TagHelper.Modality)?.DData?.ToString() ?? string.Empty;
+
+                // Do we support this kind of file?
+                if (!knownModalities.Contains(modality))
                 {
-                    StatusMessage = $"Loaded: {Path.GetFileName(path)} - Ready to run checks";
-                    ExecuteRunChecks();
+                    throw new ArgumentException($"DICOM files of modality \"{modality}\" are not supported");
                 }
-                else
+
+                if (modality == "RTPLAN")
                 {
-                    StatusMessage = $"Error: {_currentPlan.LoadError}";
+
+                    _currentPlan = ExtractPlanData(dcm, path);
+
+                    if (_currentPlan.IsLoaded)
+                    {
+                        StatusMessage = $"Loaded: {Path.GetFileName(path)} - Ready to run checks";
+                        ExecuteRunPlanChecks();
+                    }
+
+                    else
+                    {
+                        StatusMessage = $"Error: {_currentPlan.LoadError}";
+                    }
+                }
+
+                else if (modality == "RTSTRUCT")
+                {
+                    _currentStructure = ExtractStructureData(dcm, path);
+
+                    if (_currentStructure.IsLoaded)
+                    {
+                        StatusMessage = $"Loaded: {Path.GetFileName(path)} - Ready to run checks";
+                        ExecuteRunStructureChecks();
+                    }
+
+                    else
+                    {
+                        StatusMessage = $"Error: {_currentStructure.LoadError}";
+                    }
                 }
             }
             catch (Exception ex)
@@ -154,7 +202,7 @@ namespace CodingChallenge.ViewModels
                 plan.Modality = dcm.FindFirst(TagHelper.Modality)?.DData?.ToString() ?? string.Empty;
 
                 // Convert and store the beam count
-                plan.BeamCount = Convert.ToInt32(dcm.FindFirst(TagHelper.NumberOfBeams)?.DData?.ToString() ?? "0");
+                plan.BeamCount = Convert.ToInt32(dcm.FindFirst(TagHelper.NumberOfBeams)?.DData);
 
                 // Extract the beam types
                 plan.BeamTypes = ExtractBeamTypes(dcm);
@@ -184,7 +232,33 @@ namespace CodingChallenge.ViewModels
             return result;
         }
 
-        private void ExecuteRunChecks()
+        private StructureData ExtractStructureData(DICOMObject dcm, string path)
+        {
+            var structure = new StructureData
+            {
+                FilePath = path,
+                IsLoaded = true
+            };
+
+            try
+            {
+                // Extract basic patient info
+                structure.PatientId = dcm.FindFirst(TagHelper.PatientID)?.DData?.ToString() ?? string.Empty;
+                structure.PatientName = dcm.FindFirst(TagHelper.PatientName)?.DData?.ToString() ?? string.Empty;
+
+                // Extract structgure info
+                structure.StructureSetName = dcm.FindFirst(TagHelper.StructureSetName)?.DData?.ToString() ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                structure.IsLoaded = false;
+                structure.LoadError = $"Error extracting structure data: {ex.Message}";
+            }
+
+            return structure;
+        }
+
+        private void ExecuteRunPlanChecks()
         {
             if (_currentPlan == null || !_currentPlan.IsLoaded)
                 return;
@@ -192,9 +266,41 @@ namespace CodingChallenge.ViewModels
             CheckResults.Clear();
             PassCount = FailCount = WarningCount = 0;
 
-            foreach (var check in _checks)
+            foreach (var check in _planChecks)
             {
                 var result = check.Execute(_currentPlan);
+                CheckResults.Add(CheckResultViewModel.FromModel(result));
+
+                switch (result.Status)
+                {
+                    case CheckStatus.Pass:
+                        PassCount++;
+                        break;
+                    case CheckStatus.Fail:
+                        FailCount++;
+                        break;
+                    case CheckStatus.Warning:
+                        WarningCount++;
+                        break;
+                }
+            }
+
+            HasResults = true;
+            StatusMessage = $"Checks complete: {PassCount} passed, {FailCount} failed, {WarningCount} warnings";
+        }
+
+
+        private void ExecuteRunStructureChecks()
+        {
+            if (_currentStructure == null || !_currentStructure.IsLoaded)
+                return;
+
+            CheckResults.Clear();
+            PassCount = FailCount = WarningCount = 0;
+
+            foreach (var check in _structureChecks)
+            {
+                var result = check.Execute(_currentStructure);
                 CheckResults.Add(CheckResultViewModel.FromModel(result));
 
                 switch (result.Status)

@@ -31,6 +31,7 @@ namespace CodingChallenge.Models
         /// <summary>Number of beams in the plan.</summary>
         public int BeamCount { get; set; }
 
+        /// <summary> Set of beam types extracted from the RT plan file </summary>
         public HashSet<string> BeamTypes { get; set; } = new();
         
         /// <summary>Whether the file was successfully loaded.</summary>
