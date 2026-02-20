@@ -90,10 +90,14 @@ namespace Heap
         public bool IsHeapified()
         {
             bool result = true;
+
+            // Visit each node
             for (int i = 0; i < COUNT; i++)
             {
+                // If it's not a leaf
                 if(!isaLeaf(i))
                 {
+                    // Better be less than it's left child
                     int leftIdx = leftChildIndex(i);
                     if (isLess(leftIdx, i))
                     {
@@ -101,6 +105,8 @@ namespace Heap
                         break;
                     }
 
+                    // If right child exists, 
+                    // better be less than that one too
                     int rightIdx = rightChildIndex(i);  
                     if( rightIdx < COUNT && isLess(rightIdx, i))
                     {
@@ -121,6 +127,11 @@ namespace Heap
         /// 
         /// Use this method if the value of one or more elements in the heap has changed, 
         /// and you need to re-organize the heap based on the new values
+        /// 
+        /// For example, if this heap holds ints or floats, you never need to call this.
+        /// 
+        /// But if it holds object references, and those objects change s.t. comparisons
+        /// between the object members might change, you might need to call this.  
         /// </summary>
         public void ReHeapify()
         {
