@@ -27,5 +27,26 @@ namespace Fibonacci
                 return Get(i - 1) + Get(i - 2);
             }
         }
+
+        public int Find(int target)
+        {
+            // Check the argument
+            if ( target < 0)
+            {
+                throw new ArgumentException($"No fibonacci number is <= {target}");
+            }
+
+            int index = 0;
+            var nextFib = Get(index);
+            int result = -1;
+            while( nextFib <= target )
+            {
+                result = nextFib;
+                nextFib = Get(++index);
+            }
+
+            return result;
+
+        }
     }
 }
