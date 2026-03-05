@@ -34,7 +34,8 @@ namespace Fibonacci
 
         public int Find(int target)
         {
-            // Extend our internal fibonacci seqeunce until the maximum value in the sequence is less than target
+            // Extend our internal fibonacci seqeunce until the maximum value in the sequence is
+            // greater than or equal to the target
             while(EMPTY || _fibonacciSequence[COUNT -1] <  target)
             {
                 Extend(COUNT + 1);
